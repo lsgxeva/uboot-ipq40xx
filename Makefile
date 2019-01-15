@@ -1,5 +1,5 @@
 export BUILD_TOPDIR=$(PWD)
-export STAGING_DIR=/home/lancer/workspace/openwrt/ipq40xx/std/qsdk5/staging_dir
+export STAGING_DIR=/opt/disk2/juno/qsdk/staging_dir/
 export TOOLPATH=$(STAGING_DIR)/toolchain-arm_cortex-a7_gcc-4.8-linaro_uClibc-1.0.14_eabi/
 export PATH:=$(TOOLPATH)/bin:${PATH}
 export MAKECMD=make --silent ARCH=arm CROSS_COMPILE=arm-openwrt-linux-
@@ -20,7 +20,7 @@ ipq40xx:
 	@cd $(BUILD_TOPDIR)/uboot/ && $(MAKECMD) ENDIANNESS=-EB V=1 all
 	@cp $(BUILD_TOPDIR)/uboot/u-boot.bin $(BUILD_TOPDIR)/bin/temp.bin
 	@cp $(BUILD_TOPDIR)/uboot/u-boot $(BUILD_TOPDIR)/bin/openwrt-ipq40xx-u-boot-stripped.elf
-	#@make show_size
+	@make show_size
 	@make stripped
 	
 

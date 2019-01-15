@@ -64,7 +64,7 @@ int do_http_upgrade( const ulong size, const int upgrade_type )
 		printf( "\n\n****************************\n*    FIRMWARE UPGRADING    *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n" );
 
 		if ( do_checkout_firmware(NULL, 0, 0, NULL) ) {
-			sprintf(cmd, "sf probe && sf erase 0x%x 0x%x && sf write 0x84000000 0x%x 0x%x",
+			sprintf(cmd, "nand erase 0x%x 0x%x && nand write 0x84000000 0x%x 0x%x",
 				CONFIG_FIRMWARE_START, CONFIG_FIRMWARE_SIZE, CONFIG_FIRMWARE_START, size);
 		} else {
 			sprintf(cmd, "sf probe && imgaddr=0x84000000 && source $imgaddr:script");

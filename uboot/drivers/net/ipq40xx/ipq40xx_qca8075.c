@@ -28,13 +28,23 @@ static u32 qca8075_id;
 static u16 qca8075_phy_reg_write(u32 dev_id, u32 phy_id,
 		u32 reg_id, u16 reg_val)
 {
-	ipq40xx_mdio_write(phy_id, reg_id, reg_val);
+	if(phy_id > 5)
+	{
+		ipq40xx_mdio_write(phy_id, reg_id, reg_val);
+	}else{
+		ipq40xx_mdio_write(phy_id + PHYAD, reg_id, reg_val);
+	}
 	return 0;
 }
 
 u16 qca8075_phy_reg_read(u32 dev_id, u32 phy_id, u32 reg_id)
 {
-	return ipq40xx_mdio_read(phy_id, reg_id, NULL);
+	if(phy_id > 5)
+	{
+		return ipq40xx_mdio_read(phy_id, reg_id, NULL);
+	}else{
+		return ipq40xx_mdio_read(phy_id + PHYAD, reg_id, NULL);	
+	}	
 }
 
 /*

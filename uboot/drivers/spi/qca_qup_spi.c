@@ -658,10 +658,10 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 
 void spi_cs_activate(struct spi_slave *slave)
 {
-
+	write_foce_cs(ds, 0);
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-
+	write_force_cs(ds,1);
 }

@@ -150,8 +150,6 @@ int ipq40xx_ess_sw_init(ipq40xx_edma_board_cfg_t *cfg)
 	ipq40xx_ess_sw_wr(ESS_MIB_OFFSET, data |
 					ESS_MIB_EN);
 	ipq40xx_ess_sw_wr(S17_GLOFW_CTRL1_REG, 0x7f7f7f);
-	printf ("%s done\n", __func__);
-
 	return 0;
 }
 

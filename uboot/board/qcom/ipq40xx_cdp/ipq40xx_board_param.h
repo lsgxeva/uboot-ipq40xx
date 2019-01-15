@@ -246,6 +246,51 @@ gpio_func_data_t spi_nor_bga[] = {
 	},
 };
 
+#ifdef CONFIG_SPI_LCD
+gpio_func_data_t spi_lcd_bga[] = {
+	{
+		.gpio = 44,
+		.func = 2,
+		.pull = GPIO_PULL_UP,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_DISABLE,
+		.gpio_vm = GPIO_VM_ENABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+	},
+	{
+		.gpio = 45,
+		.func = 3,
+		.pull = GPIO_PULL_UP,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_DISABLE,
+		.gpio_vm = GPIO_VM_ENABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+	},
+	{
+		.gpio = 46,
+		.func = 2,
+		.pull = GPIO_PULL_UP,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_DISABLE,
+		.gpio_vm = GPIO_VM_ENABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+	},
+	{
+		.gpio = 47,
+		.func = 2,
+		.pull = GPIO_PULL_UP,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_DISABLE,
+		.gpio_vm = GPIO_VM_ENABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+	},
+};
+#endif
+
 gpio_func_data_t nand_gpio_bga[] = {
 	{
 		.gpio = 52,
@@ -768,6 +813,18 @@ gpio_func_data_t sw_gpio_bga[] = {
 		.gpio_od_en = GPIO_OD_DISABLE,
 		.gpio_pu_res = GPIO_PULL_RES2
 	},
+#ifdef CONFIG_BOARD_M4PRO
+	{
+		.gpio = 49, //mesh
+		.func = 0,
+		.pull = GPIO_NO_PULL,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_ENABLE,
+		.gpio_vm = GPIO_VM_DISABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+	},
+#else
 	{
 		.gpio = 49, //mesh
 		.func = 0,
@@ -778,6 +835,7 @@ gpio_func_data_t sw_gpio_bga[] = {
 		.gpio_od_en = GPIO_OD_DISABLE,
 		.gpio_pu_res = GPIO_PULL_RES2
 	},
+#endif
 	{
 		.gpio = 48, //power
 		.func = 0,
@@ -790,6 +848,60 @@ gpio_func_data_t sw_gpio_bga[] = {
 	},
 };
 
+gpio_func_data_t m4pro_lte_gpio[] = {
+	{
+		.gpio = 27, //power
+		.func = 0,
+		.pull = GPIO_NO_PULL,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_ENABLE,
+		.gpio_vm = GPIO_VM_ENABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+
+	},
+	{
+		.gpio = 29, //card4
+		.func = 0,
+		.pull = GPIO_NO_PULL,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_ENABLE,
+		.gpio_vm = GPIO_VM_ENABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+	},
+	{
+		.gpio = 30, //card3
+		.func = 0,
+		.pull = GPIO_NO_PULL,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_ENABLE,
+		.gpio_vm = GPIO_VM_ENABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+	},
+	{
+		.gpio = 31, //card2
+		.func = 0,
+		.pull = GPIO_NO_PULL,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_ENABLE,
+		.gpio_vm = GPIO_VM_ENABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+	},
+	{
+		.gpio = 32, //card1
+		.func = 0,
+		.pull = GPIO_NO_PULL,
+		.drvstr = GPIO_2MA,
+		.oe = GPIO_OE_ENABLE,
+		.gpio_vm = GPIO_VM_ENABLE,
+		.gpio_od_en = GPIO_OD_DISABLE,
+		.gpio_pu_res = GPIO_PULL_RES2
+	},
+
+};
 gpio_func_data_t ap_dk04_1_c2_sw_gpio_bga[] = {
 	{
 		.gpio = 6,
@@ -1107,6 +1219,15 @@ uart_cfg_t uart2 = {
 	.dbg_uart_gpio = uart2_gpio,
 };
 
+#ifdef CONFIG_BOARD_M4PRO
+
+#define LCD_CLK_GPIO	44
+#define LCD_CS_GPIO		45
+#define LCD_MOSI_GPIO	46
+#define LCD_MISO_GPIO	47
+
+#endif
+
 #ifdef CONFIG_IPQ40XX_I2C
 i2c_cfg_t i2c0 = {
 	.i2c_base = I2C0_BASE,
@@ -1383,6 +1504,14 @@ board_ipq40xx_params_t board_params[] = {
 		.pcie_cfg = {
 			pcie_board_cfg(0),
 		},
+#endif
+#ifdef CONFIG_BOARD_M4PRO
+		.lte_gpio = m4pro_lte_gpio,
+		.lte_gpio_count = ARRAY_SIZE(m4pro_lte_gpio),
+#ifdef CONFIG_SPI_LCD
+		.spi_lcd_gpio = spi_lcd_bga,
+		.spi_lcd_gpio_count = ARRAY_SIZE(spi_lcd_bga),
+#endif
 #endif
 		.dtb_config_name = { "config@1", "config@ap.dk04.1-c1" },
 	},

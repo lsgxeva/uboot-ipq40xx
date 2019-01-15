@@ -54,6 +54,9 @@
 #include <jffs2/load_kernel.h>
 #include <asm/arch-qcom-common/clk.h>
 #include <asm/arch-ipq40xx/smem.h>
+#ifdef CONFIG_BOARD_M4PRO
+#include "FONT.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -581,6 +584,446 @@ static void ipq40xx_edma_common_init(void)
 		MDIO_CTRL_0_GPHY(0xa), MDIO_CTRL_0_REG);
 }
 
+void board_lte_init(void)
+{
+	gpio_func_data_t *gpio;
+	gpio = gboard_param->lte_gpio;
+	if(gpio)
+	{
+		qca_configure_gpio(gpio,gboard_param->lte_gpio_count);
+	}
+
+}
+
+
+#ifdef CONFIG_SPI_LCD
+
+#include <spi.h>
+
+static void lcd_gpio_init(void)
+{
+	gpio_func_data_t *gpio;
+	gpio = gboard_param->spi_lcd_gpio;
+	if(gpio)
+	{
+		qca_configure_gpio(gpio,gboard_param->spi_lcd_gpio_count);
+	}
+}
+
+static void lcd_write_cmd(struct spi_slave *ds, unsigned char cmd)
+{
+	spi_cs_activate(ds);	
+	spi_xfer(ds,8,cmd,NULL,NULL);
+	spi_cs_deactivate(ds);
+}
+
+static void lcd_write_data(struct spi_slave *ds,unsigned char data)
+{
+	spi_cs_deactivate(ds);	
+	spi_xfer(ds,8,data, NULL,NULL);
+	spi_cs_activate(ds);
+}
+
+static inline void lcd_setcursor(struct spi_slave *ds, unsigned short xPos, unsigned short yPos)
+{
+#if USE_HORIZONTAL
+	#else
+	lcd_write_cmd(ds, 0x2a);
+	lcd_write_data(ds,xPos>>8);
+	lcd_write_data(ds, 0xff&xPos);
+
+	lcd_write_cmd(ds,0x28);
+	lcd_write_data(ds,yPos>>8);
+	lcd_write_data(ds,0xff&yPos);
+#endif
+}
+
+
+void spi_lcd_init(void)
+{
+	lcd_gpio_init();
+
+	struct spi_slave *ds = spi_setup_slave(CONFIG_SPI_LCD_BUS, CONFIG_SPI_LCD_CS, CONFIG_SPI_LCD_SPEED, CONFIG_SPI_LCD_MODE);
+
+	lcd_write_cmd(ds, 0xcf);
+	lcd_write_data(ds, 0x0);
+	lcd_write_data(ds,0xc1);
+	lcd_write_data(ds,0x30);
+
+	lcd_write_cmd(ds, 0xed);
+	lcd_write_data(ds, 0x64);
+	lcd_write_data(ds, 0x03);
+	lcd_write_data(ds, 0x12);
+	lcd_write_data(ds, 0x81);
+
+	lcd_write_cmd(ds, 0xe8);
+	lcd_write_data(ds,0x85);
+	lcd_write_data(ds, 0x10);
+	lcd_write_data(ds, 0x7a);
+
+	lcd_write_cmd(ds, 0xcb);
+	lcd_write_data(ds, 0x39);
+	lcd_write_data(ds, 0x2c);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0x34);
+	lcd_write_data(ds, 0x02);
+
+	lcd_write_cmd(ds, 0xf7);
+	lcd_write_data(ds, 0x20);
+
+	lcd_write_cmd(ds, 0xea);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0x00);
+
+	lcd_write_cmd(ds, 0xc0); // Power control
+	lcd_write_data(ds, 0x1b); //VRH[5:0]
+
+	lcd_write_cmd(ds, 0xc1);// Power control
+	lcd_write_data(ds, 0x01);//SAP[2:0];BT[3:0]
+
+	lcd_write_cmd(ds, 0xc5); //VCM control
+	lcd_write_data(ds, 0x30); //3F
+	lcd_write_data(ds, 0x30);//3C
+
+	lcd_write_cmd(ds, 0xc7);//VCM control2
+	lcd_write_data(ds, 0xb7);	
+
+	lcd_write_cmd(ds, 0x36);// Memory Access Control
+	lcd_write_data(ds, 0x08);
+
+	lcd_write_cmd(ds, 0x3a);
+	lcd_write_data(ds, 0x55);
+	
+	lcd_write_cmd(ds, 0xb1);
+	lcd_write_data(ds, 0x0);
+	lcd_write_data(ds, 0x1a);
+	
+	lcd_write_cmd(ds, 0xb6); // Display function control
+	lcd_write_data(ds, 0x0a);
+	lcd_write_data(ds, 0xa2);
+	
+	lcd_write_cmd(ds, 0xf2); // 3 Gamma Function disable
+	lcd_write_data(ds, 0x00);
+	lcd_write_cmd(ds, 0x26);// Gamma curve selected
+	lcd_write_data(ds, 0x01);
+
+	lcd_write_cmd(ds, 0xe0);//set gamma
+	lcd_write_data(ds, 0x0f);
+	lcd_write_data(ds, 0x2a);
+	lcd_write_data(ds, 0x28);
+	lcd_write_data(ds, 0x08);
+	lcd_write_data(ds, 0x0e);
+	lcd_write_data(ds, 0x08);
+	lcd_write_data(ds, 0x54);
+	lcd_write_data(ds, 0xa9);
+	lcd_write_data(ds, 0x43);
+	lcd_write_data(ds, 0x0a);
+	lcd_write_data(ds, 0x0f);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0x00);
+
+	lcd_write_cmd(ds, 0xe1); //set gamma
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0x15);
+	lcd_write_data(ds, 0x17);
+	lcd_write_data(ds, 0x07);
+	lcd_write_data(ds, 0x11);
+	lcd_write_data(ds, 0x06);
+	lcd_write_data(ds, 0x2b);
+	lcd_write_data(ds, 0x56);
+	lcd_write_data(ds, 0x3c);
+	lcd_write_data(ds, 0x05);
+	lcd_write_data(ds, 0x10);
+	lcd_write_data(ds, 0x0f);
+	lcd_write_data(ds, 0x3f);
+	lcd_write_data(ds, 0x3f);
+	lcd_write_data(ds, 0x0f);
+	
+	lcd_write_cmd(ds, 0x2b);
+	lcd_write_data(ds,0x00);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds,0x01);
+	lcd_write_data(ds, 0x3f);
+
+	lcd_write_cmd(ds, 0x2a);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0x00);
+	lcd_write_data(ds, 0xef);
+
+	lcd_write_cmd(ds, 0x11); //exit sleep
+
+	mdelay(120);
+
+	lcd_display_on(ds);
+
+}
+
+
+/****************************************************************************/
+#define LCD_CS(x) gpio_set_value(LCD_CS_GPIO,x)
+#define LCD_DATA(x) gpio_set_value(LCD_MOSI_GPIO,x)
+#define LCD_CLK(x)	gpio_set_value(LCD_CLK_GPIO,x)
+
+unsigned short POINT_COLOR = 0x0000,BLACK_COLOR = 0xffff;
+
+//static void spi_write_byte(unsigned char data)
+//{
+//	int i = 0;
+//	for(i = 0; i < 8;i++)
+//	{
+//		LCD_CLK(0);
+//		if(data & 0x80)
+//		{
+//			LCD_DATA(1);
+//		}else{
+//			LCD_DATA(0);
+//		}
+//		data <<= 1;
+//		LCD_CLK(1);
+//	}
+//}
+//
+//static void lcd_write_cmd(unsigned char cmd)
+//{
+//	LCD_CS(0);
+//	LCD_CLK(0);
+//	LCD_DATA(0);
+//	LCD_CLK(1);
+//	spi_write_byte(cmd);
+//	LCD_CS(1);
+//}
+//
+//static void lcd_write_data(unsigned char data)
+//{
+//	LCD_CS(0);
+//	LCD_CLK(0);
+//	LCD_DATA(1);
+//	LCD_CLK(1);
+//	spi_write_byte(data);
+//	LCD_CS(1);
+//}
+//
+void lcd_write_DRAM_Prepare(struct spi_slave *ds)
+{
+	lcd_write_cmd(ds,0x2c);
+}
+
+void lcd_display_off(struct spi_slave *ds)
+{
+	lcd_write_cmd(ds, 0x28);
+}
+
+static void lcd_clear(struct spi_slave *ds, unsigned short color)
+{
+	unsigned int index = 0;
+	lcd_setcursor(ds, 0x00, 0x0000);
+	lcd_write_DRAM_Prepare(ds);
+	for(index = 0; index < LCD_W * LCD_H;index++)
+	{
+		lcd_write_data(ds,color>>8);
+		lcd_write_data(ds,color);	
+	}
+}
+
+void lcd_display_on(struct spi_slave *ds)
+{
+	lcd_write_cmd(ds, 0x29);
+}
+
+static void lcd_drawpoint(struct spi_slave *ds,unsigned short x,unsigned y)
+{
+	lcd_setcursor(ds, x,y);
+	lcd_write_DRAM_Prepare(ds);
+	lcd_write_data(ds,POINT_COLOR >> 8);
+	lcd_write_data(ds,POINT_COLOR);
+}
+
+void lcd_showchar(struct spi_slave *ds,unsigned short x, unsigned short y, unsigned char num, unsigned char size, unsigned char mode)
+{
+	#if USE_HORIZONTAL==1
+	#define MAX_CHAR_POSX 312
+	#define MAX_CHAR_POSY 232
+	#else
+	#define MAX_CHAR_POSX 232
+	#define MAX_CHAR_POSY 213
+	#endif
+
+	unsigned char temp;
+	unsigned char pos, t;
+	unsigned short x0=x;
+	unsigned colortemp = POINT_COLOR;
+	if(x > MAX_CHAR_POSX || y > MAX_CHAR_POSY) return ;
+	
+	num = num-' ';
+
+	if(!mode)
+	{
+		for(pos = 0; pos < size;pos++)
+		{
+			if(size == 12) temp = asc2_1206[num][pos];
+			else temp = asc2_1608[num][pos];
+			for(t = 0;t < size / 2;t++)
+			{
+				if(temp & 0x01) POINT_COLOR = colortemp;
+				else POINT_COLOR = BLACK_COLOR;
+				lcd_drawpoint(ds,x,y);
+				temp >>= 1;
+				x++;
+			}
+			x=x0;
+			y++;
+		}
+	}else{
+		for(pos = 0; pos<size;pos++)
+		{
+			if(size == 12) temp=asc2_1206[num][pos];
+			else temp=asc2_1608[num][pos];
+			for(t = 0;t < size / 2;t++)
+			{
+				if(temp & 0x01) lcd_drawpoint(ds,x+t,y+pos);
+				temp >>= 1;
+			}
+		}
+	}
+	POINT_COLOR = colortemp;
+}
+
+void lcd_showstring(struct spi_slave *ds,unsigned short x, unsigned short y, const unsigned char *p)
+{
+	while(*p!='\0')
+	{
+		if(x > MAX_CHAR_POSX){x = 0;y += 16;}
+		if(y > MAX_CHAR_POSY){y = x = 0;lcd_clear(ds,WHITE);}
+		lcd_showchar(ds, x,y,*p,16,0);
+		x += 8;
+		p++;
+	}
+}
+
+//void board_lcd_init(void)
+//{
+//	lcd_gpio_init();
+//
+//	lcd_write_cmd(0xcf);
+//	lcd_write_data(0x0);
+//	lcd_write_data(0xc1);
+//	lcd_write_data(0x30);
+//
+//	lcd_write_cmd(0xed);
+//	lcd_write_data(0x64);
+//	lcd_write_data(0x03);
+//	lcd_write_data(0x12);
+//	lcd_write_data(0x81);
+//
+//	lcd_write_cmd(0xe8);
+//	lcd_write_data(0x85);
+//	lcd_write_data(0x10);
+//	lcd_write_data(0x7a);
+//
+//	lcd_write_cmd(0xcb);
+//	lcd_write_data(0x39);
+//	lcd_write_data(0x2c);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x34);
+//	lcd_write_data(0x02);
+//
+//	lcd_write_cmd(0xf7);
+//	lcd_write_data(0x20);
+//
+//	lcd_write_cmd(0xea);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x00);
+//
+//	lcd_write_cmd(0xc0); // Power control
+//	lcd_write_data(0x1b); //VRH[5:0]
+//
+//	lcd_write_cmd(0xc1);// Power control
+//	lcd_write_data(0x01);//SAP[2:0];BT[3:0]
+//
+//	lcd_write_cmd(0xc5); //VCM control
+//	lcd_write_data(0x30); //3F
+//	lcd_write_data(0x30);//3C
+//
+//	lcd_write_cmd(0xc7);//VCM control2
+//	lcd_write_data(0xb7);	
+//
+//	lcd_write_cmd(0x36);// Memory Access Control
+//	lcd_write_data(0x08);
+//
+//	lcd_write_cmd(0x3a);
+//	lcd_write_data(0x55);
+//	
+//	lcd_write_cmd(0xb1);
+//	lcd_write_data(0x0);
+//	lcd_write_data(0x1a);
+//	
+//	lcd_write_cmd(0xb6); // Display function control
+//	lcd_write_data(0x0a);
+//	lcd_write_data(0xa2);
+//	
+//	lcd_write_cmd(0xf2); // 3 Gamma Function disable
+//	lcd_write_data(0x00);
+//	lcd_write_cmd(0x26);// Gamma curve selected
+//	lcd_write_data(0x01);
+//
+//	lcd_write_cmd(0xe0);//set gamma
+//	lcd_write_data(0x0f);
+//	lcd_write_data(0x2a);
+//	lcd_write_data(0x28);
+//	lcd_write_data(0x08);
+//	lcd_write_data(0x0e);
+//	lcd_write_data(0x08);
+//	lcd_write_data(0x54);
+//	lcd_write_data(0xa9);
+//	lcd_write_data(0x43);
+//	lcd_write_data(0x0a);
+//	lcd_write_data(0x0f);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x00);
+//
+//	lcd_write_cmd(0xe1); //set gamma
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x15);
+//	lcd_write_data(0x17);
+//	lcd_write_data(0x07);
+//	lcd_write_data(0x11);
+//	lcd_write_data(0x06);
+//	lcd_write_data(0x2b);
+//	lcd_write_data(0x56);
+//	lcd_write_data(0x3c);
+//	lcd_write_data(0x05);
+//	lcd_write_data(0x10);
+//	lcd_write_data(0x0f);
+//	lcd_write_data(0x3f);
+//	lcd_write_data(0x3f);
+//	lcd_write_data(0x0f);
+//	
+//	lcd_write_cmd(0x2b);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x01);
+//	lcd_write_data(0x3f);
+//
+//	lcd_write_cmd(0x2a);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0x00);
+//	lcd_write_data(0xef);
+//
+//	lcd_write_cmd(0x11); //exit sleep
+//
+//	mdelay(120);
+//
+//	lcd_display_on();
+//}
+#endif
 int board_eth_init(bd_t *bis)
 {
 	u32 status;
@@ -605,6 +1048,14 @@ int board_eth_init(bd_t *bis)
 		break;
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C4:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C1:
+#ifdef CONFIG_BOARD_M4PRO
+		mdelay(1);
+		writel(GPIO_IN,GPIO_IN_OUT_ADDR(49));
+		mdelay(1);
+		writel(GPIO_OUT,GPIO_IN_OUT_ADDR(49));
+		ipq40xx_register_switch(ipq40xx_qca8075_phy_init);
+		break;
+#endif
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C3:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C5:
 		mdelay(1);

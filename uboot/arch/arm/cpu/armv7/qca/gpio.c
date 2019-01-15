@@ -114,7 +114,9 @@ void all_led_on(void)
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C3:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C5:
 		writel(GPIO_OUT, GPIO_IN_OUT_ADDR(52));//wifi
+	#ifndef CONFIG_BOARD_M4PRO
 		writel(GPIO_OUT, GPIO_IN_OUT_ADDR(49));//mesh
+	#endif
 		writel(GPIO_OUT, GPIO_IN_OUT_ADDR(48));//power
 		break;
 	 case MACH_TYPE_IPQ40XX_AP_DK04_1_C2:
@@ -151,10 +153,15 @@ void all_led_off(void)
 		break;
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C4:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C1:
+	#ifdef CONFIG_BOARD_M4PRO
+		break;
+	#endif
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C3:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C5:
 		writel(GPIO_IN, GPIO_IN_OUT_ADDR(52));//wifi
+	#ifndef CONFIG_BOARD_M4PRO
 		writel(GPIO_IN, GPIO_IN_OUT_ADDR(49));//mesh
+	#endif
 		writel(GPIO_IN, GPIO_IN_OUT_ADDR(48));//power
 		break;
 	 case MACH_TYPE_IPQ40XX_AP_DK04_1_C2:
@@ -231,6 +238,9 @@ void mesh_led_off(void)
 		break;
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C4:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C1:
+	#ifdef CONFIG_BOARD_M4PRO
+		break;
+	#endif
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C3:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C5:
 		//writel(GPIO_IN, GPIO_IN_OUT_ADDR(52));//wifi
@@ -360,6 +370,9 @@ void download_led_twinkle(void)
 		break;
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C4:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C1:
+		#ifdef CONFIG_BOARD_M4PRO
+		break;
+		#endif
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C3:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C5:
 		if ( readl(GPIO_IN_OUT_ADDR(52)) != 0 ) {
@@ -416,12 +429,14 @@ void erase_flash_led_twinkle(void)
 		break;
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C4:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C1:
+		#ifdef CONFIG_BOARD_M4PRO
+		break;
+		#endif
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C3:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C5:
 		if ( readl(GPIO_IN_OUT_ADDR(49)) != 0 ) {
 			writel(GPIO_IN, GPIO_IN_OUT_ADDR(49));//mesh
 		}
-
 		val = readl(GPIO_IN_OUT_ADDR(52));
 		if ( val ) {
 			writel(GPIO_IN, GPIO_IN_OUT_ADDR(52));//wifi
@@ -469,6 +484,9 @@ void write_flash_led_twinkle(void)
 		break;
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C4:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C1:
+		#ifdef CONFIG_BOARD_M4PRO
+		break;
+		#endif
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C3:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C5:
 		val = readl(GPIO_IN_OUT_ADDR(52));
@@ -515,7 +533,7 @@ void power_led_on(void)
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C1:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C3:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C5:
-		writel(GPIO_OUT, GPIO_IN_OUT_ADDR(48));//power
+		writel(GPIO_OUT, GPIO_IN_OUT_ADDR(27));//power
 		break;
 	 case MACH_TYPE_IPQ40XX_AP_DK04_1_C2:
 		break;
@@ -550,6 +568,8 @@ u32 get_gpio_status(void)
 		break;
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C4:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C1:
+		status = readl(GPIO_IN_OUT_ADDR(33));
+		break;
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C3:
 	case MACH_TYPE_IPQ40XX_AP_DK04_1_C5:
 		status = readl(GPIO_IN_OUT_ADDR(18)); 
